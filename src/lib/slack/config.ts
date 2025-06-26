@@ -8,6 +8,7 @@ export const slackConfig = {
     clientSecret: process.env.SLACK_CLIENT_SECRET,
     stateSecret: process.env.SLACK_STATE_SECRET,
     scopes: process.env.SLACK_SCOPES,
+    appUrl: process.env.APP_URL, // Added for consistent URL generation
 };
 
 // A mapping from the keys in slackConfig to the actual environment variable names.
@@ -18,6 +19,7 @@ const ENV_VAR_NAMES: { [K in keyof typeof slackConfig]: string } = {
     clientSecret: 'SLACK_CLIENT_SECRET',
     stateSecret: 'SLACK_STATE_SECRET',
     scopes: 'SLACK_SCOPES',
+    appUrl: 'APP_URL',
 };
 
 

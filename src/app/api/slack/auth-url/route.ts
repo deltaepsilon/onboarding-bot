@@ -3,9 +3,8 @@ import { slackConfig, getMissingEnvVariableNames } from "@/lib/slack/config";
 
 export async function GET(req: NextRequest) {
     try {
-        // We no longer need to check for 'appUrl' here as it's determined dynamically.
-        const requiredVarsForAuthUrl: (keyof typeof slackConfig)[] = ['clientId', 'scopes'];
-        const missingVars = getMissingEnvVariableNames(requiredVarsForAuthUrl);
+        const requiredVars: (keyof typeof slackConfig)[] = ['clientId', 'scopes', 'appUrl'];
+        const missingVars = getMissingEnvVariableNames(requiredVars);
 
         if (missingVars.length > 0) {
             const errorMessage = `The following environment variables are not set: ${missingVars.join(', ')}. Please check your .env file.`;
@@ -13,20 +12,10 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: errorMessage }, { status: 500 });
         }
 
-        const clientId = slackConfig.clientId!;
-        const scopes = slackConfig.scopes!;
+        const { clientId, scopes, appUrl } = slackConfig;
         
-        // Dynamically determine the app's URL from the request headers
-        const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host');
-        if (!host) {
-             throw new Error("Could not determine host from request headers.");
-        }
-        // The protocol is always https in this cloud environment.
-        const protocol = 'https';
-        const appUrl = `${protocol}://${host}`;
-
-
-        // The redirect URI must be whitelisted in your Slack App configuration.
+        // The redirect URI must be whitelisted in your Slack App configuration
+        // and must be consistent across the entire OAuth flow.
         const redirectUri = `${appUrl}/api/slack/oauth`;
 
         const url = `https://slack.com/oauth/v2/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${encodeURIComponent(
