@@ -1,5 +1,3 @@
-'use server';
-
 import { App, LogLevel } from "@slack/bolt";
 import { FirestoreInstallationStore } from "./installation-store";
 
