@@ -42,8 +42,7 @@ export async function GET(req: NextRequest) {
             enterprise: oauthResponse.enterprise as { id: string; name: string; } | undefined,
             user: {
                 id: (oauthResponse.authed_user as any).id,
-                token: (oauthResponse.authed_user as any).access_token,
-                scopes: (oauthResponse.authed_user as any).scope?.split(','),
+                // token and scopes are optional and will be added below
             },
             tokenType: oauthResponse.token_type as 'bot',
             isEnterpriseInstall: oauthResponse.is_enterprise_install,
@@ -51,7 +50,17 @@ export async function GET(req: NextRequest) {
             authVersion: 'v2',
         };
 
-        // Add bot info if it exists in the response
+        // User token and scopes are optional. Only add them if they exist in the response
+        // to avoid writing 'undefined' to Firestore.
+        if ((oauthResponse.authed_user as any)?.access_token) {
+            installation.user.token = (oauthResponse.authed_user as any).access_token;
+        }
+        if ((oauthResponse.authed_user as any)?.scope) {
+            installation.user.scopes = (oauthResponse.authed_user as any).scope.split(',');
+        }
+
+
+        // Add bot info if it exists in the response. This is required for a bot to operate.
         if (oauthResponse.access_token && oauthResponse.bot_user_id && oauthResponse.scope) {
             installation.bot = {
                 id: oauthResponse.bot_user_id,
@@ -59,6 +68,8 @@ export async function GET(req: NextRequest) {
                 scopes: oauthResponse.scope.split(','),
                 token: oauthResponse.access_token,
             };
+        } else {
+            throw new Error("Installation failed: Bot token or user ID not found in OAuth response.");
         }
 
         await installationStore.storeInstallation(installation);
