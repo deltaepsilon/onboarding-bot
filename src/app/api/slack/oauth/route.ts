@@ -12,13 +12,22 @@ export async function GET(req: NextRequest) {
         return new Response("Missing 'code' parameter", { status: 400 });
     }
 
+    // Determine the base URL dynamically. This is crucial for both the redirect_uri
+    // and the final success/failure redirects.
+    const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host');
+    const protocol = 'https';
+    const appUrl = host ? `${protocol}://${host}` : '';
+    
     try {
-        // Construct the redirect_uri from the incoming request. It must match
-        // the one used in the initial auth-url endpoint.
-        const redirectUri = `${new URL(req.url).origin}/api/slack/oauth`;
+        if (!appUrl) {
+            throw new Error("Could not determine host from request headers.");
+        }
 
-        // Manually perform the OAuth exchange. This is more reliable in serverless
-        // environments than relying on `handleCallback` with incompatible req/res objects.
+        // The redirect_uri must exactly match the one used in the auth-url endpoint
+        // AND one of the whitelisted URIs in your Slack App config.
+        const redirectUri = `${appUrl}/api/slack/oauth`;
+
+        // Manually perform the OAuth exchange, including the redirect_uri.
         const oauthResponse = await app.client.oauth.v2.access({
             code: code,
             client_id: slackConfig.clientId!,
@@ -37,25 +46,12 @@ export async function GET(req: NextRequest) {
             throw new Error("Slack app installer is not configured.");
         }
         
-        // Determine the base URL for the final success redirect
-        const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host');
-        if (!host) {
-             throw new Error("Could not determine host from request headers.");
-        }
-        const protocol = 'https';
-        const appUrl = `${protocol}://${host}`;
-
         const successUrl = new URL('/', appUrl);
         successUrl.searchParams.set('install', 'success');
         return NextResponse.redirect(successUrl);
 
     } catch (error: any) {
         console.error("Slack OAuth Error:", error.message);
-
-        // Determine the base URL for the failure redirect
-        const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host');
-        const protocol = 'https';
-        const appUrl = host ? `${protocol}://${host}` : '';
 
         const failureUrl = new URL('/', appUrl);
         failureUrl.searchParams.set('install', 'failure');
