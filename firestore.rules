@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read access to all users.
+    match /{document=**} {
+      allow read: if true;
+    }
+
+    // Rules for the users collection.
+    match /users/{userId} {
+      // Allow write if the user is authenticated and the userId matches the authenticated user's ID.
+      allow create, update, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Rules for the onboardingItems collection.
+    match /onboardingItems/{onboardingItemId} {
+      // Allow read if the user is authenticated.
+      allow read: if request.auth != null;
+      // Allow write if the user is authenticated and the userId matches the authenticated user's ID.
+      // Prevents users from modifying onboarding items that do not belong to them.
+      allow create, update, delete: if request.auth != null && get(/databases/$(database)/documents/users/$(request.resource.data.userId)).data.slackUserId == request.auth.uid;
+    }
+
+    // Rules for the feedback collection.
+    match /feedback/{feedbackId} {
+      // Allow read if the user is authenticated.
+      allow read: if request.auth != null;
+      // Allow write if the user is authenticated and the userId matches the authenticated user's ID.
+      // Prevents users from submitting feedback for users other than themselves.
+      allow create, update, delete: if request.auth != null && get(/databases/$(database)/documents/users/$(request.resource.data.userId)).data.slackUserId == request.auth.uid;
+    }
+  }
+}

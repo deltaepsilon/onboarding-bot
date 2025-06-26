@@ -1,0 +1,163 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema",
+      "title": "User",
+      "description": "Represents a user (new Slack hire) who is undergoing onboarding.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity. The specific format and generation strategy depend on the target database implementation."
+        },
+        "slackUserId": {
+          "type": "string",
+          "description": "The user's ID in Slack."
+        },
+        "employmentType": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The employment type of the user (e.g., Full-time, Contract). Null if not yet identified."
+        }
+      },
+      "required": [
+        "id",
+        "slackUserId"
+      ]
+    },
+    "OnboardingItem": {
+      "$schema": "http://json-schema.org/draft-07/schema",
+      "title": "OnboardingItem",
+      "description": "Represents a single to-do item in the onboarding process.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the OnboardingItem entity. The specific format and generation strategy depend on the target database implementation."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the unique identifier of the related User entity this onboarding item belongs to. (Relationship: User 1:N OnboardingItem)"
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the onboarding item."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "in-progress",
+            "completed",
+            "skipped"
+          ],
+          "description": "The current status of the onboarding item."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "description",
+        "status"
+      ]
+    },
+    "Feedback": {
+      "$schema": "http://json-schema.org/draft-07/schema",
+      "title": "Feedback",
+      "description": "Represents user feedback collected during the onboarding process.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Feedback entity. The specific format and generation strategy depend on the target database implementation."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the unique identifier of the related User entity that provided the feedback. (Relationship: User 1:N Feedback)"
+        },
+        "onboardingItemId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Reference to the unique identifier of the related OnboardingItem entity this feedback is related to. (Relationship: OnboardingItem 1:N Feedback). Null if the feedback is general."
+        },
+        "text": {
+          "type": "string",
+          "description": "The text of the feedback provided by the user."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of when the feedback was submitted."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "text",
+        "timestamp"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "definition": {
+          "description": "Collection containing user profile documents, keyed by user ID.",
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "params": [
+            {
+              "description": "The unique ID of the user.",
+              "name": "userId"
+            }
+          ]
+        },
+        "path": "/users/{userId}"
+      },
+      {
+        "definition": {
+          "description": "Collection containing onboarding items for each user, keyed by item ID.",
+          "entityName": "OnboardingItem",
+          "schema": {
+            "$ref": "#/backend/entities/OnboardingItem"
+          },
+          "params": [
+            {
+              "description": "The unique ID of the onboarding item.",
+              "name": "onboardingItemId"
+            }
+          ]
+        },
+        "path": "/onboardingItems/{onboardingItemId}"
+      },
+      {
+        "definition": {
+          "description": "Collection containing feedback entries, keyed by feedback ID.",
+          "entityName": "Feedback",
+          "schema": {
+            "$ref": "#/backend/entities/Feedback"
+          },
+          "params": [
+            {
+              "description": "The unique ID of the feedback entry.",
+              "name": "feedbackId"
+            }
+          ]
+        },
+        "path": "/feedback/{feedbackId}"
+      }
+    ],
+    "reasoning": "Based on the provided entities and application proposal, I recommend the following Firestore collection structure:\n\n1.  **users Collection:** Stores user profile information.  Each document is keyed by the user's ID. This collection will hold information about the Slack hires undergoing onboarding, including their Slack user ID and employment type.\n2.  **onboardingItems Collection:** Stores onboarding items for each user.  Each document represents a single to-do item in the onboarding process. Documents are keyed by the item's ID and have a `userId` field to link back to the `users` collection.\n3.  **feedback Collection:** Stores user feedback related to the onboarding process.  Each document represents a feedback entry. Documents are keyed by the feedback's ID and have `userId` and `onboardingItemId` fields to link back to the `users` and `onboardingItems` collections, respectively.\n\nThis structure allows for easy querying of onboarding items and feedback for a specific user, which aligns with the application's core features of onboarding item tracking and feedback storage."
+  }
+}
