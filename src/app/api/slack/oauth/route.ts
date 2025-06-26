@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import app, { installationStore } from "@/lib/slack/app";
 import { slackConfig } from "@/lib/slack/config";
+import type { Installation } from "@slack/bolt";
 
 export async function GET(req: NextRequest) {
     const url = new URL(req.url);
@@ -27,13 +28,38 @@ export async function GET(req: NextRequest) {
             client_secret: slackConfig.clientSecret!,
             redirect_uri: redirectUri,
         });
-
-        // The raw oauthResponse is not in the shape the InstallationStore expects.
-        // We use the installer's helper method to transform it.
-        if (!app.installer) {
-            throw new Error("Slack app installer is not configured.");
+        
+        if (!oauthResponse.ok) {
+            const errorMessage = oauthResponse.error || "Unknown OAuth error";
+            console.error(`Slack OAuth Error: ${errorMessage}`);
+            throw new Error(`Slack OAuth failed: ${errorMessage}`);
         }
-        const installation = app.installer.toInstallation(oauthResponse);
+
+        // Manually construct the installation object to avoid relying on the
+        // sometimes-unavailable `app.installer` property in serverless environments.
+        const installation: Installation = {
+            team: oauthResponse.team as { id: string; name: string; } | undefined,
+            enterprise: oauthResponse.enterprise as { id: string; name: string; } | undefined,
+            user: {
+                id: (oauthResponse.authed_user as any).id,
+                token: (oauthResponse.authed_user as any).access_token,
+                scopes: (oauthResponse.authed_user as any).scope?.split(','),
+            },
+            tokenType: oauthResponse.token_type as 'bot',
+            isEnterpriseInstall: oauthResponse.is_enterprise_install,
+            appId: oauthResponse.app_id,
+            authVersion: 'v2',
+        };
+
+        // Add bot info if it exists in the response
+        if (oauthResponse.access_token && oauthResponse.bot_user_id && oauthResponse.scope) {
+            installation.bot = {
+                id: oauthResponse.bot_user_id,
+                userId: oauthResponse.bot_user_id,
+                scopes: oauthResponse.scope.split(','),
+                token: oauthResponse.access_token,
+            };
+        }
 
         await installationStore.storeInstallation(installation);
         
