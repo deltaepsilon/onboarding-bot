@@ -57,16 +57,27 @@ export function SlackInstallPage() {
   const [addToSlackUrl, setAddToSlackUrl] = useState('');
 
   useEffect(() => {
-    const clientId = process.env.NEXT_PUBLIC_SLACK_CLIENT_ID;
-    const scopes = process.env.NEXT_PUBLIC_SLACK_SCOPES;
-    const redirectUri = `${window.location.origin}/api/slack/oauth`;
-
-    if (clientId && scopes) {
-      const url = `https://slack.com/oauth/v2/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${encodeURIComponent(
-        redirectUri
-      )}`;
-      setAddToSlackUrl(url);
-    }
+    fetch('/api/slack/auth-url')
+      .then((res) => {
+        if (!res.ok) {
+          // Try to parse the JSON error body from the server for a better message
+          return res.json().then(err => { 
+            throw new Error(err.error || 'Failed to fetch auth URL from server.');
+          });
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.url) {
+          setAddToSlackUrl(data.url);
+        } else {
+          throw new Error("Auth URL not found in server response.");
+        }
+      })
+      .catch((error) => {
+        console.error('Could not retrieve Slack installation URL:', error.message);
+        // The component will continue to show the "not configured" message, which is the desired fallback.
+      });
   }, []);
 
   return (
