@@ -55,6 +55,7 @@ function InstallStatus() {
 
 export function SlackInstallPage() {
   const [addToSlackUrl, setAddToSlackUrl] = useState('');
+  const [configError, setConfigError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/slack/auth-url')
@@ -70,13 +71,14 @@ export function SlackInstallPage() {
       .then((data) => {
         if (data.url) {
           setAddToSlackUrl(data.url);
+          setConfigError(null);
         } else {
           throw new Error("Auth URL not found in server response.");
         }
       })
       .catch((error) => {
         console.error('Could not retrieve Slack installation URL:', error.message);
-        // The component will continue to show the "not configured" message, which is the desired fallback.
+        setConfigError(error.message);
       });
   }, []);
 
@@ -106,7 +108,7 @@ export function SlackInstallPage() {
           <div className="flex flex-col items-center gap-2">
             <div className="h-[40px] w-[139px] bg-muted animate-pulse rounded-md" />
              <p className="text-xs text-destructive">
-                Slack integration not configured.
+                {configError || 'Retrieving configuration...'}
             </p>
           </div>
         )}

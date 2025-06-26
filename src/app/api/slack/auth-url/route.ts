@@ -6,20 +6,22 @@ export async function GET(req: NextRequest) {
         const scopes = process.env.SLACK_SCOPES;
         const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
-        if (!clientId || !scopes) {
-            console.error("Slack client ID or scopes not set on the server.");
-            return NextResponse.json(
-                { error: "Slack integration not configured on the server." },
-                { status: 500 }
-            );
+        if (!clientId) {
+            const errorMessage = "SLACK_CLIENT_ID is not set in your environment variables.";
+            console.error(errorMessage);
+            return NextResponse.json({ error: errorMessage }, { status: 500 });
+        }
+
+        if (!scopes) {
+            const errorMessage = "SLACK_SCOPES is not set in your environment variables.";
+            console.error(errorMessage);
+            return NextResponse.json({ error: errorMessage }, { status: 500 });
         }
 
         if (!appUrl) {
-            console.error("NEXT_PUBLIC_APP_URL is not set in your environment variables.");
-             return NextResponse.json(
-                { error: "Application URL is not configured on the server." },
-                { status: 500 }
-            );
+            const errorMessage = "NEXT_PUBLIC_APP_URL is not set in your environment variables.";
+            console.error(errorMessage);
+             return NextResponse.json({ error: errorMessage }, { status: 500 });
         }
 
         // The redirect URI must be whitelisted in your Slack App configuration.
