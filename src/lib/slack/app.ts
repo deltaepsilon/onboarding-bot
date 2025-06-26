@@ -15,13 +15,22 @@ const app = new App({
   processBeforeResponse: true, // Required for Next.js serverless functions
 });
 
-// Example: Listens for messages containing "hello" and responds
-app.message('hello', async ({ message, say }) => {
-  // Filter out message subtypes (e.g., channel join, message edit)
-  if (message.subtype === undefined) {
-    await say(`Hey there <@${message.user}>!`);
-  }
+// A generic message listener that captures all messages.
+// To avoid being spammy in channels, it will only respond to direct messages.
+app.message(async ({ message, say, logger }) => {
+    // Bolt's `message` event is a bit broad. We want to filter for actual text messages from users.
+    // 'subtype' is a good indicator of a special message type (e.g., channel_join)
+    // We also check that 'text' exists on the message object.
+    if (message.subtype === undefined && 'text' in message) {
+        logger.info(`Received message from ${message.user}: "${message.text}"`);
+
+        // Respond only to direct messages to the bot
+        if (message.channel_type === 'im') {
+            await say(`I heard you say: "${message.text}"`);
+        }
+    }
 });
+
 
 // Example: Publish a view to the App Home tab when a user opens it
 app.event('app_home_opened', async ({ event, client, logger }) => {
