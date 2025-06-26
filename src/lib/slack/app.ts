@@ -6,7 +6,7 @@ import { initializeFirebaseServer } from "../firebase-server";
 import { addDoc, collection, getDocs, limit, orderBy, query, serverTimestamp } from "firebase/firestore";
 import type { ChatMessage } from "@/models/schemas";
 
-const installationStore = new FirestoreInstallationStore();
+export const installationStore = new FirestoreInstallationStore();
 const { firestore } = initializeFirebaseServer();
 
 const app = new App({

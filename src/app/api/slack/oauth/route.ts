@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import app from "@/lib/slack/app";
+import app, { installationStore } from "@/lib/slack/app";
 import { slackConfig } from "@/lib/slack/config";
 import type { Installation } from "@slack/bolt";
 
@@ -40,10 +40,10 @@ export async function GET(req: NextRequest) {
         const installation = oauthResponse as unknown as Installation;
 
         // Manually store the installation in Firestore
-        if (app.installer) {
-            await app.installer.storeInstallation(installation);
+        if (installationStore) {
+            await installationStore.storeInstallation(installation);
         } else {
-            throw new Error("Slack app installer is not configured.");
+            throw new Error("Slack app installation store is not configured.");
         }
         
         const successUrl = new URL('/', appUrl);
