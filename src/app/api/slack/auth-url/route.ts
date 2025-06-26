@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
     try {
         const clientId = process.env.SLACK_CLIENT_ID;
-        const scopes = process.env.NEXT_PUBLIC_SLACK_SCOPES;
+        const scopes = process.env.SLACK_SCOPES;
         const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
         if (!clientId || !scopes) {

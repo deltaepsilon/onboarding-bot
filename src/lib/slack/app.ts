@@ -8,7 +8,7 @@ const app = new App({
   clientId: process.env.SLACK_CLIENT_ID,
   clientSecret: process.env.SLACK_CLIENT_SECRET,
   stateSecret: process.env.SLACK_STATE_SECRET,
-  scopes: process.env.NEXT_PUBLIC_SLACK_SCOPES?.split(','),
+  scopes: process.env.SLACK_SCOPES?.split(','),
   installationStore: installationStore,
   logLevel: process.env.NODE_ENV === "development" ? LogLevel.DEBUG : LogLevel.INFO,
   processBeforeResponse: true, // Required for Next.js serverless functions
