@@ -7,7 +7,7 @@ export const slackConfig = {
     clientId: process.env.SLACK_CLIENT_ID,
     clientSecret: process.env.SLACK_CLIENT_SECRET,
     stateSecret: process.env.SLACK_STATE_SECRET,
-    scopes: process.env.SLACK_SCOPES,
+    scopes: process.env.NEXT_PUBLIC_SLACK_SCOPES,
     appUrl: process.env.NEXT_PUBLIC_APP_URL,
 };
 
@@ -18,7 +18,7 @@ const ENV_VAR_NAMES: { [K in keyof typeof slackConfig]: string } = {
     clientId: 'SLACK_CLIENT_ID',
     clientSecret: 'SLACK_CLIENT_SECRET',
     stateSecret: 'SLACK_STATE_SECRET',
-    scopes: 'SLACK_SCOPES',
+    scopes: 'NEXT_PUBLIC_SLACK_SCOPES',
     appUrl: 'NEXT_PUBLIC_APP_URL',
 };
 
