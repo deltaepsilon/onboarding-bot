@@ -1,14 +1,15 @@
 import { App, LogLevel } from "@slack/bolt";
 import { FirestoreInstallationStore } from "./installation-store";
+import { slackConfig } from "./config";
 
 const installationStore = new FirestoreInstallationStore();
 
 const app = new App({
-  signingSecret: process.env.SLACK_SIGNING_SECRET,
-  clientId: process.env.SLACK_CLIENT_ID,
-  clientSecret: process.env.SLACK_CLIENT_SECRET,
-  stateSecret: process.env.SLACK_STATE_SECRET,
-  scopes: process.env.SLACK_SCOPES?.split(','),
+  signingSecret: slackConfig.signingSecret,
+  clientId: slackConfig.clientId,
+  clientSecret: slackConfig.clientSecret,
+  stateSecret: slackConfig.stateSecret,
+  scopes: slackConfig.scopes?.split(','),
   installationStore: installationStore,
   logLevel: process.env.NODE_ENV === "development" ? LogLevel.DEBUG : LogLevel.INFO,
   processBeforeResponse: true, // Required for Next.js serverless functions

@@ -1,28 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import { slackConfig, getMissingEnvVariableNames } from "@/lib/slack/config";
 
 export async function GET(req: NextRequest) {
     try {
-        const clientId = process.env.SLACK_CLIENT_ID;
-        const scopes = process.env.SLACK_SCOPES;
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+        const requiredVarsForAuthUrl: (keyof typeof slackConfig)[] = ['clientId', 'scopes', 'appUrl'];
+        const missingVars = getMissingEnvVariableNames(requiredVarsForAuthUrl);
 
-        if (!clientId) {
-            const errorMessage = "SLACK_CLIENT_ID is not set in your environment variables.";
+        if (missingVars.length > 0) {
+            const errorMessage = `The following environment variables are not set: ${missingVars.join(', ')}. Please check your .env file.`;
             console.error(errorMessage);
             return NextResponse.json({ error: errorMessage }, { status: 500 });
         }
 
-        if (!scopes) {
-            const errorMessage = "SLACK_SCOPES is not set in your environment variables.";
-            console.error(errorMessage);
-            return NextResponse.json({ error: errorMessage }, { status: 500 });
-        }
-
-        if (!appUrl) {
-            const errorMessage = "NEXT_PUBLIC_APP_URL is not set in your environment variables.";
-            console.error(errorMessage);
-             return NextResponse.json({ error: errorMessage }, { status: 500 });
-        }
+        // All required variables are present, so we can use the non-null assertion operator (!)
+        const clientId = slackConfig.clientId!;
+        const scopes = slackConfig.scopes!;
+        const appUrl = slackConfig.appUrl!;
 
         // The redirect URI must be whitelisted in your Slack App configuration.
         const redirectUri = `${appUrl}/api/slack/oauth`;
