@@ -21,8 +21,6 @@ const ENV_VAR_NAMES: { [K in keyof typeof slackConfig]: string } = {
   appUrl: "APP_URL",
 };
 
-console.log("🌭🌭🌭", JSON.stringify({ slackConfig }, null, 2));
-
 /**
  * Checks for missing required environment variables for the Slack integration.
  * @param requiredKeys - An array of keys from slackConfig that are required.

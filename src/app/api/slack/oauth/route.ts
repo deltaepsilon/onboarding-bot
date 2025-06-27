@@ -21,8 +21,6 @@ export async function GET(req: NextRequest) {
 
     const redirectUri = `${appUrl}/api/slack/oauth`;
 
-    console.log("🌭🌭🌭", JSON.stringify({ appUrl, redirectUri }, null, 2));
-
     // Manually perform the OAuth exchange
     const oauthResponse = await app.client.oauth.v2.access({
       code: code,
@@ -46,7 +44,8 @@ export async function GET(req: NextRequest) {
         | undefined,
       user: {
         id: (oauthResponse.authed_user as any).id,
-        // token and scopes are optional and will be added below
+        token: undefined,
+        scopes: undefined
       },
       tokenType: oauthResponse.token_type as "bot",
       isEnterpriseInstall: oauthResponse.is_enterprise_install,

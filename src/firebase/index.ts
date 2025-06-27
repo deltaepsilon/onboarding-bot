@@ -1,7 +1,7 @@
 "use client";
 
 import { firebaseConfig } from "@/firebase/config";
-import { getEmulatorDomains } from "@/utils/get-emulator-domains";
+import { getEmulatorDomains } from "@/lib/utils";
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";

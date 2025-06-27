@@ -23,9 +23,6 @@ export async function GET(req: NextRequest) {
     // The redirect URI must be whitelisted in your Slack App configuration
     // and must be consistent across the entire OAuth flow.
     const redirectUri = `${appUrl}/api/slack/oauth`;
-
-    console.log("🌭🌭🌭", JSON.stringify({ redirectUri, appUrl }, null, 2));
-
     const url = `https://slack.com/oauth/v2/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${encodeURIComponent(
       redirectUri
     )}`;

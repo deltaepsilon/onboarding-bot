@@ -2,6 +2,7 @@ import { firebaseConfig } from "@/firebase/config";
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import { getEmulatorDomains } from "./utils";
 
 // This file is for server-side Firebase initialization.
 // It re-uses the logic from the client-side setup to ensure
@@ -27,23 +28,17 @@ export function initializeFirebaseServer() {
       const firebaseApp = initializeApp(firebaseConfig);
       const auth = getAuth(firebaseApp);
       const firestore = getFirestore(firebaseApp);
-      const firestoreHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST!;
-      const firestoreDomain = firestoreHost.includes("http")
-        ? (() => {
-            const url = new URL(firestoreHost);
-            return { domain: url.hostname, port: +url.port };
-          })()
-        : { domain: firestoreHost, port: 443 };
+      const emulatorDomains = getEmulatorDomains();
+
       connectFirestoreEmulator(
         firestore,
-        firestoreDomain.domain,
-        firestoreDomain.port
+        emulatorDomains.firestoreDomain.domain,
+        emulatorDomains.firestoreDomain.port
       );
-      const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!;
-      const authDomain = authHost.includes("http")
-        ? authHost
-        : `http://${authHost}:443`;
-      connectAuthEmulator(auth, authDomain);
+      connectAuthEmulator(
+        auth,
+        `${emulatorDomains.authDomain.domain}:${emulatorDomains.authDomain.port}`
+      );
       return { firebaseApp, auth, firestore };
     }
   }
