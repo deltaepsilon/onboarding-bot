@@ -67,14 +67,13 @@ export const loadContextAndRespondFlow = ai.defineFlow(
     const contexts = await Promise.all(contextPromises);
     const combinedContext = contexts.join('\n\n---\n\n');
 
-    const { message } = await contextPrompt({
+    const { output } = await contextPrompt({
       query: input.query,
       history: input.history,
       context: combinedContext,
     });
-    const text = message?.content?.[0].text?.replaceAll('\"', '') || '';
 
-    return text || "I'm sorry, I couldn't generate a response.";
+    return output || "I'm sorry, I couldn't generate a response.";
   }
 );
 
