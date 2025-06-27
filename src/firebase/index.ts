@@ -48,7 +48,7 @@ export function initializeFirebase() {
 
       // The auth emulator requires "https" since it is running from a cloud hosting
       // environment, served on a full domain.
-      connectAuthEmulator(auth, `${emulatorDomains.authDomain.domain}:${emulatorDomains.authDomain.port}`);
+      connectAuthEmulator(auth, `https://${emulatorDomains.authDomain.domain}:${emulatorDomains.authDomain.port}`);
       return { firebaseApp, auth, firestore };
     }
   }

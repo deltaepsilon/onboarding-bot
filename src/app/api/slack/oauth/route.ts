@@ -40,10 +40,9 @@ export async function GET(req: NextRequest) {
     const installation: Installation = {
       team: oauthResponse.team as { id: string; name: string } | undefined,
       enterprise: oauthResponse.enterprise as { id: string; name: string } | undefined,
+      // @ts-ignore
       user: {
         id: (oauthResponse.authed_user as any).id,
-        token: undefined,
-        scopes: undefined,
       },
       tokenType: oauthResponse.token_type as 'bot',
       isEnterpriseInstall: oauthResponse.is_enterprise_install,

@@ -23,7 +23,7 @@ const LoadContextAndRespondInputSchema = z.object({
 });
 export type LoadContextAndRespondInput = z.infer<typeof LoadContextAndRespondInputSchema>;
 
-const LoadContextAndRespondOutputSchema = z.string().describe('The AI-generated response.');
+const LoadContextAndRespondOutputSchema = z.string().describe('The AI-generated response.').nullable();
 export type LoadContextAndRespondOutput = z.infer<typeof LoadContextAndRespondOutputSchema>;
 
 const contextPrompt = ai.definePrompt({
@@ -38,18 +38,22 @@ const contextPrompt = ai.definePrompt({
   output: { schema: LoadContextAndRespondOutputSchema },
   prompt: `You are an onboarding assistant. Your goal is to answer questions based on the provided context and chat history.
 
-  CHAT HISTORY:
-  {{#each history}}
-  {{this.role}}: {{{this.text}}}
-  {{/each}}
+    CHAT HISTORY:
+    {{#each history}}
+    {{this.role}}: {{{this.text}}}
+    {{/each}}
 
-  ONBOARDING CONTEXT:
-  {{{context}}}
+    ONBOARDING CONTEXT:
+    {{{context}}}
 
-  USER QUERY:
-  {{{query}}}
+    USER QUERY:
+    {{{query}}}
 
-  Based on all the information above, please answer the user's query. If the answer is not in the context, say that you don't have enough information to answer. Remember the user's progress from the chat history.`,
+    Based on all the information above, please answer the user's query. 
+    Prompt the user to take the next step in the onboarding process.
+    Make sure to reformat all content into Slack's mrkdwn format. For example, for links use the \`<URL|Link Text>\` format.
+    If the answer is not in the context, say that you don't have enough information to answer. Remember the user's progress from the chat history.
+  `,
 });
 
 export const loadContextAndRespondFlow = ai.defineFlow(
@@ -63,12 +67,14 @@ export const loadContextAndRespondFlow = ai.defineFlow(
     const contexts = await Promise.all(contextPromises);
     const combinedContext = contexts.join('\n\n---\n\n');
 
-    const { output } = await contextPrompt({
+    const { message } = await contextPrompt({
       query: input.query,
       history: input.history,
       context: combinedContext,
     });
-    return output || "I'm sorry, I couldn't generate a response.";
+    const text = message?.content?.[0].text?.replaceAll('\"', '') || '';
+
+    return text || "I'm sorry, I couldn't generate a response.";
   }
 );
 

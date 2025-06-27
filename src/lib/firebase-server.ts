@@ -28,7 +28,7 @@ export function initializeFirebaseServer() {
       const emulatorDomains = getEmulatorDomains();
 
       connectFirestoreEmulator(firestore, emulatorDomains.firestoreDomain.domain, emulatorDomains.firestoreDomain.port);
-      connectAuthEmulator(auth, `${emulatorDomains.authDomain.domain}:${emulatorDomains.authDomain.port}`);
+      connectAuthEmulator(auth, `https://${emulatorDomains.authDomain.domain}:${emulatorDomains.authDomain.port}`);
       return { firebaseApp, auth, firestore };
     }
   }

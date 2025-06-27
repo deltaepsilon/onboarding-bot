@@ -31,12 +31,6 @@ app.message(async ({ message, say, logger }) => {
     const messagesRef = collection(firestore, 'slackConversations', conversationId, 'messages');
 
     try {
-      // Let the user know the bot is thinking by sending a threaded reply
-      const thinkingMsg = await say({
-        text: 'Thinking...',
-        thread_ts: message.ts, // Reply in a thread to keep it clean
-      });
-
       // Log user message to Firestore
       await addDoc(messagesRef, {
         role: 'user',
@@ -63,10 +57,12 @@ app.message(async ({ message, say, logger }) => {
         timestamp: serverTimestamp(),
       });
 
+      if (!response) throw new Error('Response missing');
+
       // Send the AI's response back to the user in the same thread
       await say({
         text: response,
-        thread_ts: message.ts,
+        // thread_ts: message.ts,
       });
     } catch (error) {
       logger.error('Error calling Genkit flow or logging to Firestore:', error);
