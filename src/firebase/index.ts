@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { firebaseConfig } from "@/firebase/config";
-import { getEmulatorDomains } from "@/lib/utils";
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, connectAuthEmulator } from "firebase/auth";
-import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import { firebaseConfig } from '@/firebase/config';
+import { getEmulatorDomains } from '@/lib/utils';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 // This function uses a specific configuration to set up the emulators in a cloud
@@ -18,7 +18,7 @@ import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 export function initializeFirebase() {
   if (!getApps().length) {
     // NODE_ENV can be "production", "development", or "test"
-    if (process.env.NODE_ENV === "production") {
+    if (process.env.NODE_ENV === 'production') {
       // Important! initializeApp() is called without any arguments because Firebase App Hosting
       // integrates with the initializeApp() function to provide the environment variables needed to
       // populate the FirebaseOptions in production. It is critical that the initializeApp()
@@ -28,10 +28,7 @@ export function initializeFirebase() {
       try {
         firebaseApp = initializeApp();
       } catch (e) {
-        console.info(
-          "Automatic initialization failed. Falling back to firebase config object.",
-          e
-        );
+        console.info('Automatic initialization failed. Falling back to firebase config object.', e);
         firebaseApp = initializeApp(firebaseConfig);
       }
       const auth = getAuth(firebaseApp);
@@ -44,21 +41,14 @@ export function initializeFirebase() {
       const auth = getAuth(firebaseApp);
       const firestore = getFirestore(firebaseApp);
       const emulatorDomains = getEmulatorDomains();
-      
+
       // The Firestore SDK infers the protocol from the 443 port and it not necessary to do anything else
       // to configure the emulator.
-      connectFirestoreEmulator(
-        firestore,
-        emulatorDomains.firestoreDomain.domain,
-        emulatorDomains.firestoreDomain.port
-      );
-      
+      connectFirestoreEmulator(firestore, emulatorDomains.firestoreDomain.domain, emulatorDomains.firestoreDomain.port);
+
       // The auth emulator requires "https" since it is running from a cloud hosting
       // environment, served on a full domain.
-      connectAuthEmulator(
-        auth,
-        `${emulatorDomains.authDomain.domain}:${emulatorDomains.authDomain.port}`
-      );
+      connectAuthEmulator(auth, `${emulatorDomains.authDomain.domain}:${emulatorDomains.authDomain.port}`);
       return { firebaseApp, auth, firestore };
     }
   }
@@ -70,9 +60,9 @@ export function initializeFirebase() {
   return { firebaseApp, auth, firestore };
 }
 
-export * from "./provider";
-export * from "./client-provider";
-export * from "./firestore/use-collection";
-export * from "./firestore/use-doc";
-export * from "./non-blocking-updates";
-export * from "./non-blocking-login";
+export * from './provider';
+export * from './client-provider';
+export * from './firestore/use-collection';
+export * from './firestore/use-doc';
+export * from './non-blocking-updates';
+export * from './non-blocking-login';

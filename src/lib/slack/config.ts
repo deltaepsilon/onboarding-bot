@@ -13,12 +13,12 @@ export const slackConfig = {
 // A mapping from the keys in slackConfig to the actual environment variable names.
 // Useful for creating user-friendly error messages.
 const ENV_VAR_NAMES: { [K in keyof typeof slackConfig]: string } = {
-  signingSecret: "SLACK_SIGNING_SECRET",
-  clientId: "SLACK_CLIENT_ID",
-  clientSecret: "SLACK_CLIENT_SECRET",
-  stateSecret: "SLACK_STATE_SECRET",
-  scopes: "SLACK_SCOPES",
-  appUrl: "APP_URL",
+  signingSecret: 'SLACK_SIGNING_SECRET',
+  clientId: 'SLACK_CLIENT_ID',
+  clientSecret: 'SLACK_CLIENT_SECRET',
+  stateSecret: 'SLACK_STATE_SECRET',
+  scopes: 'SLACK_SCOPES',
+  appUrl: 'APP_URL',
 };
 
 /**
@@ -26,9 +26,7 @@ const ENV_VAR_NAMES: { [K in keyof typeof slackConfig]: string } = {
  * @param requiredKeys - An array of keys from slackConfig that are required.
  * @returns An array of the actual environment variable names that are missing.
  */
-export function getMissingEnvVariableNames(
-  requiredKeys: (keyof typeof slackConfig)[]
-) {
+export function getMissingEnvVariableNames(requiredKeys: (keyof typeof slackConfig)[]) {
   const missingVarNames: string[] = [];
   for (const key of requiredKeys) {
     if (!slackConfig[key]) {

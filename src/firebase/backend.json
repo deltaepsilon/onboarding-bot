@@ -15,17 +15,11 @@
           "description": "The user's ID in Slack."
         },
         "employmentType": {
-          "type": [
-            "string",
-            "null"
-          ],
+          "type": ["string", "null"],
           "description": "The employment type of the user (e.g., Full-time, Contract). Null if not yet identified."
         }
       },
-      "required": [
-        "id",
-        "slackUserId"
-      ]
+      "required": ["id", "slackUserId"]
     },
     "OnboardingItem": {
       "$schema": "http://json-schema.org/draft-07/schema",
@@ -47,20 +41,11 @@
         },
         "status": {
           "type": "string",
-          "enum": [
-            "in-progress",
-            "completed",
-            "skipped"
-          ],
+          "enum": ["in-progress", "completed", "skipped"],
           "description": "The current status of the onboarding item."
         }
       },
-      "required": [
-        "id",
-        "userId",
-        "description",
-        "status"
-      ]
+      "required": ["id", "userId", "description", "status"]
     },
     "Feedback": {
       "$schema": "http://json-schema.org/draft-07/schema",
@@ -77,10 +62,7 @@
           "description": "Reference to the unique identifier of the related User entity that provided the feedback. (Relationship: User 1:N Feedback)"
         },
         "onboardingItemId": {
-          "type": [
-            "string",
-            "null"
-          ],
+          "type": ["string", "null"],
           "description": "Reference to the unique identifier of the related OnboardingItem entity this feedback is related to. (Relationship: OnboardingItem 1:N Feedback). Null if the feedback is general."
         },
         "text": {
@@ -93,12 +75,7 @@
           "description": "The timestamp of when the feedback was submitted."
         }
       },
-      "required": [
-        "id",
-        "userId",
-        "text",
-        "timestamp"
-      ]
+      "required": ["id", "userId", "text", "timestamp"]
     },
     "ChatMessage": {
       "$schema": "http://json-schema.org/draft-07/schema",
@@ -125,10 +102,7 @@
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous"
-    ]
+    "providers": ["password", "anonymous"]
   },
   "firestore": {
     "structure": [
@@ -140,9 +114,7 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "params": [
-            { "name": "userId", "description": "The unique ID of the user." }
-          ]
+          "params": [{ "name": "userId", "description": "The unique ID of the user." }]
         }
       },
       {
@@ -152,7 +124,10 @@
           "entityName": "OnboardingItem",
           "schema": { "$ref": "#/backend/entities/OnboardingItem" },
           "params": [
-            { "name": "onboardingItemId", "description": "The unique ID of the onboarding item." }
+            {
+              "name": "onboardingItemId",
+              "description": "The unique ID of the onboarding item."
+            }
           ]
         }
       },
@@ -163,7 +138,10 @@
           "entityName": "Feedback",
           "schema": { "$ref": "#/backend/entities/Feedback" },
           "params": [
-            { "name": "feedbackId", "description": "The unique ID of the feedback entry." }
+            {
+              "name": "feedbackId",
+              "description": "The unique ID of the feedback entry."
+            }
           ]
         }
       },
@@ -174,8 +152,14 @@
           "entityName": "ChatMessage",
           "schema": { "$ref": "#/backend/entities/ChatMessage" },
           "params": [
-            { "name": "conversationId", "description": "The Slack channel or DM ID." },
-            { "name": "messageId", "description": "The unique ID for the message." }
+            {
+              "name": "conversationId",
+              "description": "The Slack channel or DM ID."
+            },
+            {
+              "name": "messageId",
+              "description": "The unique ID for the message."
+            }
           ]
         }
       }

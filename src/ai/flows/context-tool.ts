@@ -7,9 +7,9 @@
  * - LoadContextAndRespondOutput - The return type for the loadContextAndRespond function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-import {fetchContent} from '@/services/web-content-fetcher';
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
+import { fetchContent } from '@/services/web-content-fetcher';
 import { ChatMessageSchema } from '@/models/schemas';
 
 const ONBOARDING_URLS = [
@@ -17,10 +17,9 @@ const ONBOARDING_URLS = [
   'https://gitlab.com/jacobu.hona/june-2025-hackathon-slackbot/-/raw/main/README.md?ref_type=heads',
 ];
 
-
 const LoadContextAndRespondInputSchema = z.object({
   query: z.string().describe('The latest user query from Slack.'),
-  history: z.array(ChatMessageSchema).describe('The recent chat history for context.')
+  history: z.array(ChatMessageSchema).describe('The recent chat history for context.'),
 });
 export type LoadContextAndRespondInput = z.infer<typeof LoadContextAndRespondInputSchema>;
 
@@ -31,10 +30,10 @@ const contextPrompt = ai.definePrompt({
   name: 'contextPrompt',
   input: {
     schema: z.object({
-        query: z.string(),
-        context: z.string(),
-        history: z.array(ChatMessageSchema),
-    })
+      query: z.string(),
+      context: z.string(),
+      history: z.array(ChatMessageSchema),
+    }),
   },
   output: { schema: LoadContextAndRespondOutputSchema },
   prompt: `You are an onboarding assistant. Your goal is to answer questions based on the provided context and chat history.
@@ -53,7 +52,6 @@ const contextPrompt = ai.definePrompt({
   Based on all the information above, please answer the user's query. If the answer is not in the context, say that you don't have enough information to answer. Remember the user's progress from the chat history.`,
 });
 
-
 export const loadContextAndRespondFlow = ai.defineFlow(
   {
     name: 'loadContextAndRespondFlow',
@@ -66,9 +64,9 @@ export const loadContextAndRespondFlow = ai.defineFlow(
     const combinedContext = contexts.join('\n\n---\n\n');
 
     const { output } = await contextPrompt({
-        query: input.query,
-        history: input.history,
-        context: combinedContext
+      query: input.query,
+      history: input.history,
+      context: combinedContext,
     });
     return output || "I'm sorry, I couldn't generate a response.";
   }

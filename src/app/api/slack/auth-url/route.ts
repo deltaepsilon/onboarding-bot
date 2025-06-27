@@ -1,18 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
-import { slackConfig, getMissingEnvVariableNames } from "@/lib/slack/config";
+import { NextRequest, NextResponse } from 'next/server';
+import { slackConfig, getMissingEnvVariableNames } from '@/lib/slack/config';
 
 export async function GET(req: NextRequest) {
   try {
-    const requiredVars: (keyof typeof slackConfig)[] = [
-      "clientId",
-      "scopes",
-      "appUrl",
-    ];
+    const requiredVars: (keyof typeof slackConfig)[] = ['clientId', 'scopes', 'appUrl'];
     const missingVars = getMissingEnvVariableNames(requiredVars);
 
     if (missingVars.length > 0) {
       const errorMessage = `The following environment variables are not set: ${missingVars.join(
-        ", "
+        ', '
       )}. Please check your .env file.`;
       console.error(errorMessage);
       return NextResponse.json({ error: errorMessage }, { status: 500 });
@@ -29,9 +25,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ url });
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Internal Server Error";
-    console.error("Error generating Slack auth URL:", errorMessage);
+    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
+    console.error('Error generating Slack auth URL:', errorMessage);
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
