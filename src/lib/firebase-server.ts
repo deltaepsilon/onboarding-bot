@@ -1,7 +1,7 @@
-import { firebaseConfig } from '@/firebase/config';
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
+import { firebaseConfig } from "@/firebase/config";
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 // This file is for server-side Firebase initialization.
 // It re-uses the logic from the client-side setup to ensure
@@ -14,7 +14,10 @@ export function initializeFirebaseServer() {
       try {
         firebaseApp = initializeApp();
       } catch (e) {
-        console.info('Automatic initialization failed. Falling back to firebase config object.', e);
+        console.info(
+          "Automatic initialization failed. Falling back to firebase config object.",
+          e
+        );
         firebaseApp = initializeApp(firebaseConfig);
       }
       const auth = getAuth(firebaseApp);
@@ -25,9 +28,22 @@ export function initializeFirebaseServer() {
       const auth = getAuth(firebaseApp);
       const firestore = getFirestore(firebaseApp);
       const firestoreHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST!;
-      connectFirestoreEmulator(firestore, firestoreHost, 443);
+      const firestoreDomain = firestoreHost.includes("http")
+        ? (() => {
+            const url = new URL(firestoreHost);
+            return { domain: url.hostname, port: +url.port };
+          })()
+        : { domain: firestoreHost, port: 443 };
+      connectFirestoreEmulator(
+        firestore,
+        firestoreDomain.domain,
+        firestoreDomain.port
+      );
       const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!;
-      connectAuthEmulator(auth, `https://${authHost}:443`);
+      const authDomain = authHost.includes("http")
+        ? authHost
+        : `http://${authHost}:443`;
+      connectAuthEmulator(auth, authDomain);
       return { firebaseApp, auth, firestore };
     }
   }

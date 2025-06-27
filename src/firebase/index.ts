@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import { firebaseConfig } from '@/firebase/config';
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
+import { firebaseConfig } from "@/firebase/config";
+import { getEmulatorDomains } from "@/utils/get-emulator-domains";
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 // This function uses a specific configuration to set up the emulators in a cloud
@@ -27,7 +28,10 @@ export function initializeFirebase() {
       try {
         firebaseApp = initializeApp();
       } catch (e) {
-        console.info('Automatic initialization failed. Falling back to firebase config object.', e);
+        console.info(
+          "Automatic initialization failed. Falling back to firebase config object.",
+          e
+        );
         firebaseApp = initializeApp(firebaseConfig);
       }
       const auth = getAuth(firebaseApp);
@@ -39,18 +43,22 @@ export function initializeFirebase() {
       const firebaseApp = initializeApp(firebaseConfig);
       const auth = getAuth(firebaseApp);
       const firestore = getFirestore(firebaseApp);
-      // This environment variable value contains the full domain URL and never a localhost value.
-      // This domain looks something like: 8080-firebase-studio-174474.cluster-krbdp4txefbbsv3zfyg3a4xp6y.cloudworkstations.dev
-      const firestoreHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST!;
+      const emulatorDomains = getEmulatorDomains();
+      
       // The Firestore SDK infers the protocol from the 443 port and it not necessary to do anything else
       // to configure the emulator.
-      connectFirestoreEmulator(firestore, firestoreHost, 443);
-      // This environment variable value contains the full domain URL and never a localhost value.
-      // This domain looks something like: 9099-firebase-studio-174474.cluster-krbdp4txefbbsv3zfyg3a4xp6y.cloudworkstations.dev
-      const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!;
+      connectFirestoreEmulator(
+        firestore,
+        emulatorDomains.firestoreDomain.domain,
+        emulatorDomains.firestoreDomain.port
+      );
+      
       // The auth emulator requires "https" since it is running from a cloud hosting
       // environment, served on a full domain.
-      connectAuthEmulator(auth, `https://${authHost}:443`);
+      connectAuthEmulator(
+        auth,
+        `${emulatorDomains.authDomain.domain}:${emulatorDomains.authDomain.port}`
+      );
       return { firebaseApp, auth, firestore };
     }
   }
@@ -62,9 +70,9 @@ export function initializeFirebase() {
   return { firebaseApp, auth, firestore };
 }
 
-export * from './provider';
-export * from './client-provider';
-export * from './firestore/use-collection';
-export * from './firestore/use-doc';
-export * from './non-blocking-updates';
-export * from './non-blocking-login';
+export * from "./provider";
+export * from "./client-provider";
+export * from "./firestore/use-collection";
+export * from "./firestore/use-doc";
+export * from "./non-blocking-updates";
+export * from "./non-blocking-login";
